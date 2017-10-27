@@ -30,7 +30,7 @@ private:
     int m_nExpansionGap = 8;
     int m_nMinimumLength = (9*16);
     int m_nNumOfRowsToCheck = 5;
-    int m_nOverlapMin = (6*16);
+    int m_nOverlapMin = (19*16);
     int m_nCurrentCutNumber = 0;
 
     //board m_sStarts[255];

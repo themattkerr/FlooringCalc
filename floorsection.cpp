@@ -3,7 +3,7 @@
 
 FloorSection::FloorSection()
 {
-    //inializeVariables();
+    inializeVariables();
 }
 
 
@@ -18,18 +18,21 @@ void FloorSection::CalcNumRows()
 bool FloorSection::OkStartLength(int nLengthToCheck, int nRowNum)
 {
     int nNumberOfFullBoards = 0;
+    if (nLengthToCheck < 0)
+        return false;
     if (nLengthToCheck < m_nMinimumLength || nLengthToCheck > m_nBoardLength )
         return false;
+
+    int nTemp = CalculateRemainderLength(nLengthToCheck,nNumberOfFullBoards );
+    if (nTemp < m_nMinimumLength || nTemp > m_nBoardLength)
+         return false;
     int nVariableOverlap = m_nOverlapMin;
     for (int nRowCheck = nRowNum - 1, nRowsToCheck = m_nNumOfRowsToCheck; nRowCheck > 0 && nRowsToCheck > 0; nRowCheck--, nRowsToCheck--)
     {
         int nDifference = qFabs(m_sRow[nRowCheck].sStart.nLeangth - nLengthToCheck);
         if(nDifference < nVariableOverlap)
-            return false;
-        int nTemp = CalculateRemainderLength(nLengthToCheck,nNumberOfFullBoards );
-        if (nTemp < m_nMinimumLength)
-            return false;
-        nVariableOverlap = nVariableOverlap / 5;
+            return false;   
+        nVariableOverlap = nVariableOverlap / 4 ;// Reduces the amound of variation allowed the further away you get.
     }
     return true;
 }
@@ -66,7 +69,7 @@ QString FloorSection::GenerateCutList()
                 int nFeet, nInches, Sixteeths;
                 strReport.append("Row: ").append(QString::number(nTRow)).append("\t");
                 convertSixteenthsToFeetInchesSixteenths(m_sRow[nTRow].sEnd.nLeangth, nFeet, nInches, Sixteeths );
-                strReport.append("End: ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
+                strReport.append("End: ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ; 
                 strReport.append("\n");
             }
         }
@@ -77,8 +80,9 @@ QString FloorSection::GenerateCutList()
     {
 
          int nFeet, nInches, Sixteeths;
-         convertSixteenthsToFeetInchesSixteenths(m_sStarsBuffer[iii].nCutNumber, nFeet, nInches, Sixteeths );
+         convertSixteenthsToFeetInchesSixteenths(m_sStarsBuffer[iii].nLeangth , nFeet, nInches, Sixteeths );
          strReport.append("--->  ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
+         strReport.append("   ").append("Cut: ").append(QString::number(m_sStarsBuffer[iii].nCutNumber ));
          strReport.append("\n");
 
     }
@@ -87,8 +91,9 @@ QString FloorSection::GenerateCutList()
     {
 
          int nFeet, nInches, Sixteeths;
-         convertSixteenthsToFeetInchesSixteenths(m_sEndsBuffer[iii].nCutNumber, nFeet, nInches, Sixteeths );
+         convertSixteenthsToFeetInchesSixteenths(m_sEndsBuffer[iii].nLeangth , nFeet, nInches, Sixteeths );
          strReport.append("--->  ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
+         strReport.append("   ").append("Cut: ").append(QString::number(m_sEndsBuffer[iii].nCutNumber ));
          strReport.append("\n");
 
     }
@@ -103,6 +108,11 @@ QString FloorSection::GenerateCutList()
         strReport.append("Number of Complete Boards: ").append(QString::number(m_sRow[iii].nNumberOfCompleteBoards)).append("\n");
         convertSixteenthsToFeetInchesSixteenths(m_sRow[iii].sEnd.nLeangth, nFeet, nInches, Sixteeths );
         strReport.append("End:  ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
+        int temp = m_sRow[iii].sStart.nLeangth +(m_sRow[iii].nNumberOfCompleteBoards * m_nBoardLength ) + m_sRow[iii].sEnd.nLeangth;
+        convertSixteenthsToFeetInchesSixteenths(temp, nFeet, nInches, Sixteeths );
+        strReport.append("\n").append("Total Row Length:  ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
+
+
         strReport.append("\n\n");
     }
 
@@ -179,14 +189,18 @@ void FloorSection::CalcCutList()
 
                     }
                     m_nStartBufferIndex--;
+
                     m_sRow[nRowIndex].sEnd.nLeangth = CalculateRemainderLength(m_sRow[nRowIndex].sStart.nLeangth,m_sRow[nRowIndex].nNumberOfCompleteBoards );
                     m_nCurrentCutNumber++;
                     m_sRow[nRowIndex].sEnd.nCutNumber = m_nCurrentCutNumber;
 
-                    m_nStartBufferIndex++; //enter remainder into buffer
-                    m_sStarsBuffer[m_nStartBufferIndex].nCutNumber = m_nCurrentCutNumber;
-                    //int nSawBladeWidth = 2;
-                    m_sStarsBuffer[m_nStartBufferIndex].nLeangth = (m_nBoardLength - (m_sRow[nRowIndex].sStart.nLeangth) - m_nSawBladeWidth );
+                    int nTempStart = (m_nBoardLength - (m_sRow[nRowIndex].sEnd.nLeangth) - m_nSawBladeWidth );
+                    if(nTempStart >= m_nMinimumLength)
+                    {
+                        m_nStartBufferIndex++; //enter remainder into buffer
+                        m_sStarsBuffer[m_nStartBufferIndex].nCutNumber = m_nCurrentCutNumber;
+                        m_sStarsBuffer[m_nStartBufferIndex].nLeangth = nTempStart;
+                    }
                     bSolutionFound = true;
                     break;
                 }
@@ -211,10 +225,13 @@ void FloorSection::CalcCutList()
                     m_nCurrentCutNumber++;
                     m_sRow[nRowIndex].sStart.nCutNumber = m_nCurrentCutNumber;
 
-                    m_nEndBufferIndex++; //enter remainder into buffer
-                    m_sEndsBuffer[m_nEndBufferIndex].nCutNumber = m_nCurrentCutNumber;
-                    //int nSawBladeWidth = 2;
-                    m_sEndsBuffer[m_nEndBufferIndex].nLeangth = (m_nBoardLength - (m_sRow[nRowIndex].sStart.nLeangth) - m_nSawBladeWidth );
+                    int nTempEnd = (m_nBoardLength - (m_sRow[nRowIndex].sStart.nLeangth) - m_nSawBladeWidth );
+                    if (nTempEnd >= m_nMinimumLength )
+                    {
+                        m_nEndBufferIndex++; //enter remainder into buffer
+                        m_sEndsBuffer[m_nEndBufferIndex].nCutNumber = m_nCurrentCutNumber;
+                        m_sEndsBuffer[m_nEndBufferIndex].nLeangth = nTempEnd;
+                    }
                     bSolutionFound = true;
                     break;
                 }
@@ -234,19 +251,27 @@ void FloorSection::CalcCutList()
             m_sRow[nRowIndex].sStart.nLeangth = nTempStartlength;
             m_sRow[nRowIndex].sStart.nCutNumber = m_nCurrentCutNumber;
 
-            m_nEndBufferIndex++; // enter remainder into end buffer
-            m_sEndsBuffer[m_nEndBufferIndex].nCutNumber = m_nCurrentCutNumber;
-            m_sEndsBuffer[m_nEndBufferIndex].nLeangth = (m_nBoardLength - m_sRow[nRowIndex].sStart.nLeangth - m_nSawBladeWidth);
+            int nTempEnd = (m_nBoardLength - m_sRow[nRowIndex].sStart.nLeangth - m_nSawBladeWidth);
+            if (nTempEnd > m_nMinimumLength)
+            {
+                m_nEndBufferIndex++; // enter remainder into end buffer
+                m_sEndsBuffer[m_nEndBufferIndex].nCutNumber = m_nCurrentCutNumber;
+                m_sEndsBuffer[m_nEndBufferIndex].nLeangth = nTempEnd;
+            }
 
-            m_sRow[nRowIndex].sEnd.nLeangth = CalculateRemainderLength(m_sRow[nRowIndex].sStart.nLeangth,m_sRow[nRowIndex].nNumberOfCompleteBoards );
+
             m_nCurrentCutNumber++;
+            m_sRow[nRowIndex].sEnd.nLeangth = CalculateRemainderLength(m_sRow[nRowIndex].sStart.nLeangth,m_sRow[nRowIndex].nNumberOfCompleteBoards );
             m_sRow[nRowIndex].sEnd.nCutNumber = m_nCurrentCutNumber;
 
-            m_nStartBufferIndex++; //enter remainder into  Start buffer
-            m_sStarsBuffer[m_nStartBufferIndex].nCutNumber = m_nCurrentCutNumber;
+            int nTempStart = (m_nBoardLength - (m_sRow[nRowIndex].sEnd.nLeangth) - m_nSawBladeWidth );
+            if (nTempStart > m_nMinimumLength)
+            {
+                m_nStartBufferIndex++; //enter remainder into  Start buffer
+                m_sStarsBuffer[m_nStartBufferIndex].nCutNumber = m_nCurrentCutNumber;
+                m_sStarsBuffer[m_nStartBufferIndex].nLeangth = nTempStart;
+            }
 
-            m_sStarsBuffer[m_nStartBufferIndex].nLeangth = (m_nBoardLength - (m_sRow[nRowIndex].sEnd.nLeangth) - m_nSawBladeWidth );
-            //bSolutionFound = true;
         }
     }
 
@@ -257,18 +282,21 @@ void FloorSection::inializeVariables()
      m_nStartBufferIndex = 0;
      m_nEndBufferIndex = 0;
 
-//    board sTemp;
-//    sTemp.nCutNumber = 0;
-//    sTemp.nLeangth = 0;
-//    sTemp.nLeangth = 0;
+    board sTemp;
+    sTemp.nCutNumber = 0;
+    sTemp.nLeangth = 0;
+    sTemp.nLeangth = 0;
 
-//    for(int iii = 0; iii < 255; iii++)
-//    {
-//         m_sStarsBuffer[iii] = sTemp;
-//         m_sEndsBuffer[iii] = sTemp;
-//         m_sRow[iii].nNumberOfCompleteBoards = 0;
-//         m_sRow[iii].sEnd = sTemp;
-//         m_sRow[iii].sStart = sTemp;
-//    }
+    for(int iii = 0; iii < 254; iii++)
+    {
+         m_sStarsBuffer[iii] = sTemp;
+         m_sEndsBuffer[iii] = sTemp;
+         m_sRow[iii].nNumberOfCompleteBoards = 0;
+         m_sRow[iii].sEnd.nCutNumber = 0;
+         m_sRow[iii].sStart.nCutNumber = 0;
+         m_sRow[iii].sEnd.nLeangth = 0;
+         m_sRow[iii].sStart.nLeangth = 0;
+
+    }
 
 }

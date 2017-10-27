@@ -297,6 +297,7 @@ int convertFeetInchestSixteenthsToSixteenths(int nFeet, int nInches, int nSixtee
 
 int randomInt (int nBegining, int nEnd)
 {
+    qsrand(QDateTime::currentMSecsSinceEpoch()/1000);
     int x = qrand() % ((nEnd+1)-nBegining) + nBegining;
     return x;
 }
