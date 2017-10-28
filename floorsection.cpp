@@ -24,7 +24,7 @@ bool FloorSection::OkStartLength(int nLengthToCheck, int nRowNum)
         return false;
 
     int nTemp = CalculateRemainderLength(nLengthToCheck,nNumberOfFullBoards );
-    if (nTemp < m_nMinimumLength || nTemp > m_nBoardLength)
+    if (nTemp < m_nMinimumLength/* || nTemp > m_nBoardLength*/)
          return false;
     int nVariableOverlap = m_nOverlapMin;
     for (int nRowCheck = nRowNum - 1, nRowsToCheck = m_nNumOfRowsToCheck; nRowCheck > 0 && nRowsToCheck > 0; nRowCheck--, nRowsToCheck--)
@@ -104,10 +104,12 @@ QString FloorSection::GenerateCutList()
         strReport.append("Row: ").append(QString::number(iii)).append("\n");
         convertSixteenthsToFeetInchesSixteenths(m_sRow[iii].sStart.nLeangth, nFeet, nInches, Sixteeths );
         strReport.append("Start:  ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
+        strReport.append("   Cut: ").append(QString::number(m_sRow[iii].sStart.nCutNumber   ));
         strReport.append("\n");
         strReport.append("Number of Complete Boards: ").append(QString::number(m_sRow[iii].nNumberOfCompleteBoards)).append("\n");
         convertSixteenthsToFeetInchesSixteenths(m_sRow[iii].sEnd.nLeangth, nFeet, nInches, Sixteeths );
         strReport.append("End:  ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
+        strReport.append("   Cut: ").append(QString::number(m_sRow[iii].sEnd.nCutNumber   ));
         int temp = m_sRow[iii].sStart.nLeangth +(m_sRow[iii].nNumberOfCompleteBoards * m_nBoardLength ) + m_sRow[iii].sEnd.nLeangth;
         convertSixteenthsToFeetInchesSixteenths(temp, nFeet, nInches, Sixteeths );
         strReport.append("\n").append("Total Row Length:  ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
@@ -172,11 +174,26 @@ void FloorSection::CalcCutList()
 //    m_nStartBufferIndex = 0;
 //    m_nEndBufferIndex = 0;
     bool bSolutionFound = false;
+    bool bUseStartsFirst = false;
+    bool bAllStartsChecked = false;
+    bool bAllEndsChecked = false;
+    if (m_nStartBufferIndex > m_nEndBufferIndex)
+        bUseStartsFirst = true;
 
     for (int nRowIndex = 1; nRowIndex <= m_nNumberOfRows; nRowIndex++)
     {
         bSolutionFound = false;
-        if(m_nStartBufferIndex > 0 && bSolutionFound == false)
+
+        bool bUseStartsFirst = false;
+        bool bAllStartsChecked = false;
+        bool bAllEndsChecked = false;
+        if (m_nStartBufferIndex > m_nEndBufferIndex)
+            bUseStartsFirst = true;
+
+
+        while (!bAllStartsChecked && !bAllEndsChecked ){
+
+        if(m_nStartBufferIndex > 0 && bSolutionFound == false && bUseStartsFirst == true)
         {
             for (int iii = 1; iii <= m_nStartBufferIndex; iii++)
             {
@@ -202,11 +219,17 @@ void FloorSection::CalcCutList()
                         m_sStarsBuffer[m_nStartBufferIndex].nLeangth = nTempStart;
                     }
                     bSolutionFound = true;
+
                     break;
                 }
               }//end Start buffer search
+            bUseStartsFirst = false;
+            bAllStartsChecked = true;
         }// end if start index has values
-        if(m_nEndBufferIndex > 0 && bSolutionFound == false)
+        if(m_nStartBufferIndex <= 0 || bSolutionFound)
+            bAllStartsChecked = true;
+
+        if(m_nEndBufferIndex > 0 && bSolutionFound == false && bUseStartsFirst == false)
         {
             for (int iii = 1; iii <= m_nEndBufferIndex; iii++)
             {
@@ -236,7 +259,11 @@ void FloorSection::CalcCutList()
                     break;
                 }
             }
+            bAllEndsChecked = true;
         }//end search end buffer
+        if(m_nEndBufferIndex <= 0 || bSolutionFound )
+            bAllEndsChecked = true;
+        } // end While loop.
         if (!(bSolutionFound)) //generate random start cut
         {
             int nBeginging = m_nMinimumLength / 16;
@@ -298,5 +325,37 @@ void FloorSection::inializeVariables()
          m_sRow[iii].sStart.nLeangth = 0;
 
     }
+
+    m_nStartBufferIndex = 6;
+
+
+    m_sStarsBuffer[1].nCutNumber = 2001 ;
+    m_sStarsBuffer[1].nLeangth = convertFeetInchestSixteenthsToSixteenths(0,11,8);
+    m_sStarsBuffer[2].nCutNumber = 2002 ;
+    m_sStarsBuffer[2].nLeangth = convertFeetInchestSixteenthsToSixteenths (3,0,12);
+    m_sStarsBuffer[3].nCutNumber = 2003 ;
+    m_sStarsBuffer[3].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,8,11);
+
+    m_sStarsBuffer[4].nCutNumber = 3014 ;
+    m_sStarsBuffer[4].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,8,11);
+
+    m_sStarsBuffer[5].nCutNumber = 4002 ;
+    m_sStarsBuffer[5].nLeangth = convertFeetInchestSixteenthsToSixteenths(2,0,11);
+    m_sStarsBuffer[6].nCutNumber = 4003 ;
+    m_sStarsBuffer[6].nLeangth = convertFeetInchestSixteenthsToSixteenths(5,8,0);
+
+    m_nEndBufferIndex = 5;
+    m_sEndsBuffer[1].nCutNumber = 1001 ;
+    m_sEndsBuffer[1].nLeangth = convertFeetInchestSixteenthsToSixteenths(2,9,11) ;
+
+    m_sEndsBuffer[2].nCutNumber = 2006 ;
+    m_sEndsBuffer[2].nLeangth = convertFeetInchestSixteenthsToSixteenths(0,7,11 ) ;
+    m_sEndsBuffer[3].nCutNumber = 2008 ;
+    m_sEndsBuffer[3].nLeangth = convertFeetInchestSixteenthsToSixteenths(2,9,10 ) ;
+
+    m_sEndsBuffer[4].nCutNumber = 3012 ;
+    m_sEndsBuffer[4].nLeangth = convertFeetInchestSixteenthsToSixteenths(1,1,15 ) ;
+    m_sEndsBuffer[5].nCutNumber =  3013;
+    m_sEndsBuffer[5].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,10,11 ) ;
 
 }
