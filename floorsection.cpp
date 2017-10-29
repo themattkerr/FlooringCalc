@@ -11,13 +11,27 @@ void FloorSection::CalcNumRows()
 {
     if (m_nBoardWidth > 0 && m_nSectionWidth >0)
     {
-        nTempNumberOfNewRows = m_nSectionWidth/m_nBoardWidth;
+        int nTempNumberOfNewRows = m_nSectionWidth/m_nBoardWidth;
         if(m_nSectionWidth%m_nBoardWidth)
             nTempNumberOfNewRows++;
         m_nNumberOfRows = m_nNumberOfPreviousRows + nTempNumberOfNewRows;
     }
     else
         m_nNumberOfRows = 0;
+}
+void FloorSection::RemoveRow(int nRowToRemove)
+{
+    if (nRowToRemove < 1 || nRowToRemove > m_nNumberOfRows)
+        return;
+    for(int iii = nRowToRemove; iii <= m_nNumberOfRows; iii++)
+        m_sRow[iii]=m_sRow[iii+1];
+    m_nNumberOfRows--;
+}
+void FloorSection::RemovePreviousRows(int nNumberOfPreviousRows)
+{
+    for(int iii = 1; iii <= nNumberOfPreviousRows; iii++)
+        RemoveRow(iii);
+    m_nNumberOfPreviousRows = 0;
 }
 
 bool FloorSection::OkStartLength(int nLengthToCheck, int nRowNum)
@@ -78,7 +92,7 @@ QString FloorSection::GenerateCutList()
     for (int nCutNum = 1;nCutNum <= m_nCurrentCutNumber; nCutNum++)
     {
         strReport.append("Cut ").append(QString::number( (nCutNum)).append("\n"));
-        for(int nTRow = 1; nTRow <= m_nNumberOfRows; nTRow++ )
+        for(int nTRow = (m_nNumberOfPreviousRows+1); nTRow <= m_nNumberOfRows; nTRow++ )
         {
             if(m_sRow[nTRow].sStart.nCutNumber == nCutNum )
             {
@@ -89,7 +103,7 @@ QString FloorSection::GenerateCutList()
                 strReport.append("\n");
             }
         }
-        for(int nTRow = 1; nTRow <= m_nNumberOfRows; nTRow++ )
+        for(int nTRow = (m_nNumberOfPreviousRows+1); nTRow <= m_nNumberOfRows; nTRow++ )
         {
             if(m_sRow[nTRow].sEnd.nCutNumber == nCutNum )
             {
@@ -125,7 +139,7 @@ QString FloorSection::GenerateCutList()
 
     }
     strReport.append("\n").append("Rows").append("\n\n");
-    for(int iii = 1; iii <= m_nNumberOfRows; iii++)
+    for(int iii = (m_nNumberOfPreviousRows+1); iii <= m_nNumberOfRows; iii++)
     {
         int nFeet, nInches, Sixteeths;
         strReport.append("Row: ").append(QString::number(iii)).append("\n");
@@ -168,9 +182,18 @@ void FloorSection::EnterBoardWidth(int nSixteenthsOfAnInch)
         m_nBoardWidth = nSixteenthsOfAnInch;
 }
 
+void FloorSection::EnterPreviousRows(int nInputStartLength)
+{
+    m_nNumberOfPreviousRows++;
+    board sTempBoard;
+    sTempBoard.nLeangth = nInputStartLength;
+    sTempBoard.nCutNumber = 0;
+
+}
+
 int FloorSection::GetNumberOfRows()
 {
-    return m_nNumberOfRows;
+    return (m_nNumberOfRows - m_nNumberOfPreviousRows);
 }
 
 int FloorSection::GetTotalNumberOfBoardsUsed()
@@ -180,9 +203,15 @@ int FloorSection::GetTotalNumberOfBoardsUsed()
 
 QString FloorSection::GetCutList()
 {
+    CalcMinOverlap();
     CalcNumRows();
     CalcCutList();
+    RemovePreviousRows(m_nNumberOfPreviousRows);
     return GenerateCutList();
+}
+void FloorSection::CalcMinOverlap()
+{
+    m_nOverlapMin = m_nBoardLength*.25;
 }
 
 void FloorSection::CalcCutList()
@@ -207,13 +236,13 @@ void FloorSection::CalcCutList()
     if (m_nStartBufferIndex > m_nEndBufferIndex)
         bUseStartsFirst = true;
 
-    for (int nRowIndex = 1; nRowIndex <= m_nNumberOfRows; nRowIndex++)
+    for (int nRowIndex = (m_nNumberOfPreviousRows+1); nRowIndex <= m_nNumberOfRows; nRowIndex++)
     {
         bSolutionFound = false;
 
-        bool bUseStartsFirst = false;
-        bool bAllStartsChecked = false;
-        bool bAllEndsChecked = false;
+        bUseStartsFirst = false;
+        bAllStartsChecked = false;
+        bAllEndsChecked = false;
         if (m_nStartBufferIndex > m_nEndBufferIndex)
             bUseStartsFirst = true;
 
@@ -388,5 +417,14 @@ void FloorSection::inializeVariables()
     m_sEndsBuffer[4].nLeangth = convertFeetInchestSixteenthsToSixteenths(1,1,15 ) ;
     m_sEndsBuffer[5].nCutNumber =  3013;
     m_sEndsBuffer[5].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,10,11 ) ;
+
+    m_nNumberOfPreviousRows = 5;
+
+    m_sRow[1].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths(2,9,11 ));
+    m_sRow[2].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths(1,1,15 ));
+    m_sRow[3].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths(3,10,11 ));
+    m_sRow[4].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths(3,0,12 ));
+    m_sRow[5].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths(0,10,11 ));
+
 
 }

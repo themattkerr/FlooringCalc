@@ -45,6 +45,9 @@ private:
     row m_sRow[255];
 
     void CalcNumRows();
+    void CalcMinOverlap();
+    void RemoveRow(int nRowToRemove);
+    void RemovePreviousRows(int nNumberOfPreviousRows);
     int CalculateRemainderLength(int nBoardLength, int &nNumOfFullBoards);
     bool OkStartLength(int nLengthToCheck, int nRowNum);
     QString GenerateCutList();
@@ -57,6 +60,7 @@ public:
     void EnterSectionWidth(int nSixteenthsOfAnInch);
     void EnterBoardLength(int nSixteenthsOfAnInch);
     void EnterBoardWidth(int nSixteenthsOfAnInch);
+    void EnterPreviousRows(int nInputStartLength);
 
     int GetNumberOfRows();
     int GetTotalNumberOfBoardsUsed();
