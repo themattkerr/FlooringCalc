@@ -386,45 +386,43 @@ void FloorSection::inializeVariables()
 
     }
 
-    m_nStartBufferIndex = 6;
+    m_nStartBufferIndex = 4;
 
 
-    m_sStarsBuffer[6].nCutNumber = 2001 ;
-    m_sStarsBuffer[6].nLeangth = convertFeetInchestSixteenthsToSixteenths(0,11,8);
-    m_sStarsBuffer[3].nCutNumber = 2002 ;
-    m_sStarsBuffer[3].nLeangth = convertFeetInchestSixteenthsToSixteenths (3,0,12);
-    m_sStarsBuffer[1].nCutNumber = 2003 ;
-    m_sStarsBuffer[1].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,8,11);
 
-    m_sStarsBuffer[4].nCutNumber = 3014 ;
-    m_sStarsBuffer[4].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,8,11);
+    m_sStarsBuffer[1].nCutNumber = 5003 ;
+    m_sStarsBuffer[1].nLeangth = convertFeetInchestSixteenthsToSixteenths(0,9,0);
 
-    m_sStarsBuffer[5].nCutNumber = 4002 ;
-    m_sStarsBuffer[5].nLeangth = convertFeetInchestSixteenthsToSixteenths(2,0,11);
-    m_sStarsBuffer[2].nCutNumber = 4003 ;
-    m_sStarsBuffer[2].nLeangth = convertFeetInchestSixteenthsToSixteenths(5,8,0);
+    m_sStarsBuffer[2].nCutNumber = 3014 ;
+    m_sStarsBuffer[2].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,8,11);
 
-    m_nEndBufferIndex = 5;
-    m_sEndsBuffer[1].nCutNumber = 1001 ;
-    m_sEndsBuffer[1].nLeangth = convertFeetInchestSixteenthsToSixteenths(2,9,11) ;
+    m_sStarsBuffer[3].nCutNumber = 4002 ;
+    m_sStarsBuffer[3].nLeangth = convertFeetInchestSixteenthsToSixteenths(2,0,11);
+
+    m_sStarsBuffer[4].nCutNumber = 5021 ;
+    m_sStarsBuffer[4].nLeangth = convertFeetInchestSixteenthsToSixteenths(1,5,8);
+
+    m_nEndBufferIndex = 4;
 
     m_sEndsBuffer[2].nCutNumber = 2006 ;
     m_sEndsBuffer[2].nLeangth = convertFeetInchestSixteenthsToSixteenths(0,7,11 ) ;
     m_sEndsBuffer[3].nCutNumber = 2008 ;
     m_sEndsBuffer[3].nLeangth = convertFeetInchestSixteenthsToSixteenths(2,9,10 ) ;
 
-    m_sEndsBuffer[4].nCutNumber = 3012 ;
-    m_sEndsBuffer[4].nLeangth = convertFeetInchestSixteenthsToSixteenths(1,1,15 ) ;
-    m_sEndsBuffer[5].nCutNumber =  3013;
-    m_sEndsBuffer[5].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,10,11 ) ;
+
+    m_sEndsBuffer[4].nCutNumber = 5022 ;
+    m_sEndsBuffer[4].nLeangth = convertFeetInchestSixteenthsToSixteenths(2,2,7) ;
+    m_sEndsBuffer[5].nCutNumber =  5001;
+    m_sEndsBuffer[5].nLeangth = convertFeetInchestSixteenthsToSixteenths(0,9,0 ) ;
+    m_sEndsBuffer[6].nCutNumber =  5023;
+    m_sEndsBuffer[6].nLeangth = convertFeetInchestSixteenthsToSixteenths(1,6,3 ) ;
 
     m_nNumberOfPreviousRows = 5;
-
-    m_sRow[1].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths(2,9,11 ));
-    m_sRow[2].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths(1,1,15 ));
-    m_sRow[3].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths(3,10,11 ));
-    m_sRow[4].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths(3,0,12 ));
-    m_sRow[5].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths(0,10,11 ));
+    m_sRow[1].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 5,4 ,0 ));
+    m_sRow[2].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 1, 7,8 ));
+    m_sRow[3].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 4, 8,0 ));
+    m_sRow[4].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 2, 8,12 ));
+    m_sRow[5].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 5,5 ,8 ));
 
 
 }
