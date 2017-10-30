@@ -29,8 +29,9 @@ void FloorSection::RemoveRow(int nRowToRemove)
 }
 void FloorSection::RemovePreviousRows(int nNumberOfPreviousRows)
 {
+    int nFirstRow = 1;
     for(int iii = 1; iii <= nNumberOfPreviousRows; iii++)
-        RemoveRow(iii);
+        RemoveRow(nFirstRow);
     m_nNumberOfPreviousRows = 0;
 }
 
@@ -425,4 +426,34 @@ void FloorSection::inializeVariables()
     m_sRow[5].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 5,5 ,8 ));
 
 
+}
+
+QString FloorSection::GetPreview()
+{
+    QString strPreview;
+    for (int nRow = 1; nRow <= m_nNumberOfRows; nRow++)
+    {
+        strPreview.append("Row ");
+        if(nRow < 10)
+            strPreview.append("0");
+        strPreview.append(QString::number(nRow)).append(": ");
+
+        strPreview.append("|").append(DrawBoard(m_sRow[nRow].sStart.nLeangth));
+        for (int nFullBoard = 1; nFullBoard <= m_sRow[nRow].nNumberOfCompleteBoards; nFullBoard++ )
+        {
+            strPreview.append(DrawBoard(m_nBoardLength));
+        }
+        strPreview.append(DrawBoard(m_sRow[nRow].sEnd.nLeangth));
+        strPreview.append("|").append("\n");
+    }
+    return strPreview;
+
+}
+QString FloorSection::DrawBoard(int nLengthInicater)
+{
+    QString strPreview;
+    for (int iii = 1;iii < (nLengthInicater/24);iii++)
+        strPreview.append("_");
+    strPreview.append("|");
+    return strPreview;
 }

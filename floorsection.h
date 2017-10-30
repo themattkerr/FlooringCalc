@@ -52,7 +52,7 @@ private:
     bool OkStartLength(int nLengthToCheck, int nRowNum);
     QString GenerateCutList();
     void CalcCutList();
-
+    QString DrawBoard(int nLengthInicater);
 
 public:
     FloorSection();
@@ -67,6 +67,7 @@ public:
 
     QString GetCutList();
     void inializeVariables();
+    QString GetPreview();
 
 };
 

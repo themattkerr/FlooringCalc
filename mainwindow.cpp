@@ -38,3 +38,9 @@ void MainWindow::on_pushButton_clicked()
     ui->textBrowser->setText( Section1.GetCutList());
 
 }
+
+void MainWindow::on_pushButton_2_clicked()
+{
+    ui->PreviewWindow->clear();
+    ui->PreviewWindow->setText(Section1.GetPreview());
+}
