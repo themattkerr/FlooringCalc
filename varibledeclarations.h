@@ -17,8 +17,13 @@ struct row {
     board sEnd;
     int nNumberOfCompleteBoards;
 };
-//struct statistics {
+struct statistics {
 
-//};
+    unsigned int nStairStepFail = 0;
+    unsigned int nProportionFail = 0;
+    unsigned int nMinLengthFail = 0;
+    unsigned int nMaxWasteFail = 0;
+
+};
 
 #endif // VARIBLEDECLARATIONS_H

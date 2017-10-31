@@ -12,6 +12,8 @@ class FloorSection
 {
 private:
 
+    statistics sFailLog;
+
     int m_nSectionLength;
     int m_nSectionWidth;
     int m_nBoardWidth;

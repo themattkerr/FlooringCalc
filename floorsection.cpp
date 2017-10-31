@@ -131,11 +131,16 @@ bool FloorSection::OkStartLength(int nLengthToCheck, int nRowNum)
     if (nLengthToCheck < 0)
         return false;
     if (nLengthToCheck < m_nMinimumLength || nLengthToCheck > m_nBoardLength )
+    {
+        sFailLog.nMinLengthFail++;
         return false;
-
+    }
     int nTemp = CalculateRemainderLength(nLengthToCheck,nNumberOfFullBoards );
     if (nTemp < m_nMinimumLength || nTemp > m_nBoardLength)
-         return false;
+    {
+        sFailLog.nMinLengthFail++;
+        return false;
+    }
 
     //Check for variation
     int nVariableOverlap = m_nOverlapMin;
@@ -143,7 +148,10 @@ bool FloorSection::OkStartLength(int nLengthToCheck, int nRowNum)
     {
         int nDifference = qFabs(m_sRow[nRowCheck].sStart.nLeangth - nLengthToCheck);
         if(nDifference < nVariableOverlap)
-            return false;   
+        {
+            sFailLog.nProportionFail++;
+            return false;
+        }
         nVariableOverlap = nVariableOverlap / 4 ;// Reduces the amound of variation allowed the further away you get.
     }
 
@@ -155,7 +163,10 @@ bool FloorSection::OkStartLength(int nLengthToCheck, int nRowNum)
         int nImmediateNeighborDifference = qFabs(nTempDifference1 - nTempDifference2);
 
         if(nImmediateNeighborDifference < m_nStairStepRange)
+        {
+            sFailLog.nStairStepFail++;
             return false;
+        }
     }
     if ((m_nNumOfRowsToCheck >= 5) && (nRowNum >= 5) ) // Checks Every other Row
     {
@@ -164,7 +175,10 @@ bool FloorSection::OkStartLength(int nLengthToCheck, int nRowNum)
         int nEveryOtherDifference = qFabs(nTempDifference1 - nTempDifference2);
 
         if(nEveryOtherDifference < m_nStairStepRange)
+        {
+            sFailLog.nStairStepFail++;
             return false;
+        }
     }
     return true;
 }
@@ -255,7 +269,14 @@ QString FloorSection::GenerateCutList()
         strReport.append("\n\n");
     }
 
-        return strReport;
+    strReport.append("Fail Statistics:").append("\n");
+    strReport.append("Min Length Fails: ").append(QString::number(sFailLog.nMinLengthFail )).append("\n");
+    strReport.append("Max Waste Fails: ").append(QString::number(sFailLog.nMaxWasteFail )).append("\n");
+    strReport.append("Proportional Fails: ").append(QString::number(sFailLog.nProportionFail )).append("\n");
+    strReport.append("Stairstep Fails: ").append(QString::number(sFailLog.nStairStepFail )).append("\n");
+
+
+    return strReport;
 }
 
 void FloorSection::EnterSectionLength(int nSixteenthsOfAnInch)
