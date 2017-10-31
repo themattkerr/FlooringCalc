@@ -30,6 +30,7 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h \
     floorsection.h \
-    mattcalculations.h
+    mattcalculations.h \
+    varibledeclarations.h
 
 FORMS    += mainwindow.ui

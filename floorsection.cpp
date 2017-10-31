@@ -3,7 +3,7 @@
 
 FloorSection::FloorSection()
 {
-    inializeVariables();
+    //inializeVariables();
 }
 
 
@@ -34,6 +34,92 @@ void FloorSection::RemovePreviousRows(int nNumberOfPreviousRows)
         RemoveRow(nFirstRow);
     m_nNumberOfPreviousRows = 0;
 }
+
+board FloorSection::TakeBoardFromBuffer(int nBufferLocation, int nBoardType)
+{
+    board sTempBoard;
+    if(nBoardType == START)
+    {
+        sTempBoard = m_sStarsBuffer[nBufferLocation];
+        RemoveBoardFromStartBuffer(nBufferLocation);
+    }
+    if(nBoardType == END)
+    {
+        sTempBoard = m_sEndsBuffer[nBufferLocation];
+        RemoveBoardFromEndBuffer(nBufferLocation);
+    }
+    return sTempBoard;
+}
+
+void FloorSection::RemoveBoardFromStartBuffer(int nBoardToRemove)
+{
+    if (nBoardToRemove == 254)
+    {
+        m_sStarsBuffer[nBoardToRemove].nCutNumber = 0;
+        m_sStarsBuffer[nBoardToRemove].nLeangth = 0;
+        m_sStarsBuffer[nBoardToRemove].bRequires2ndCut = false;
+    }
+    for(int jjj = nBoardToRemove; jjj < m_nStartBufferIndex; jjj++)
+    {
+        m_sStarsBuffer[jjj] = m_sStarsBuffer[jjj+1];
+    }
+    m_nStartBufferIndex--;
+}
+
+void FloorSection::RemoveBoardFromEndBuffer(int nBoardToRemove)
+{
+    if (nBoardToRemove == 254)
+    {
+        m_sEndsBuffer[nBoardToRemove].nCutNumber = 0;
+        m_sEndsBuffer[nBoardToRemove].nLeangth = 0;
+        m_sEndsBuffer[nBoardToRemove].bRequires2ndCut = false;
+    }
+    for(int jjj = nBoardToRemove; jjj < m_nEndBufferIndex; jjj++)
+    {
+        m_sEndsBuffer[jjj] = m_sEndsBuffer[jjj+1];
+    }
+    m_nEndBufferIndex--;
+}
+
+board FloorSection::FindBoardCloseToLength(int nLengthToCheck, int nBoardType, bool &ok)
+{
+    board sTempBoard;
+    sTempBoard.bRequires2ndCut = false;
+    sTempBoard.nCutNumber = -1;
+    sTempBoard.nLeangth = -1;
+
+    if (nBoardType == START)
+    {
+        for (int iii = 1; iii <= m_nStartBufferIndex;iii ++)
+        {
+            if(m_nMaxWastePerBoard >= m_sStarsBuffer[iii].nLeangth - nLengthToCheck )
+            {
+                sTempBoard = TakeBoardFromBuffer(iii, nBoardType);
+                sTempBoard.bRequires2ndCut = true;
+                ok=true;
+                return sTempBoard;
+            }
+        }
+    }
+
+    if(nBoardType == END)
+    {
+        for(int III = 1; III <= m_nEndBufferIndex;III++)
+        {
+            if(m_nMaxWastePerBoard >= m_sEndsBuffer[III].nLeangth - nLengthToCheck )
+            {
+                sTempBoard = TakeBoardFromBuffer(III, nBoardType);
+                sTempBoard.bRequires2ndCut = true;
+                ok=true;
+                return sTempBoard;
+            }
+        }
+    }
+    ok=false;
+    return sTempBoard;
+}
+
+
 
 bool FloorSection::OkStartLength(int nLengthToCheck, int nRowNum)
 {
@@ -89,6 +175,7 @@ QString FloorSection::GenerateCutList()
 {
     bool bAllRowsDone = false;
     QString strReport;
+    QString str2ndCutIndicator = " <--- 2nd Cut";
     int nCutIndex = 1;
     for (int nCutNum = 1;nCutNum <= m_nCurrentCutNumber; nCutNum++)
     {
@@ -101,6 +188,8 @@ QString FloorSection::GenerateCutList()
                 strReport.append("Row: ").append(QString::number(nTRow)).append("\t");
                 convertSixteenthsToFeetInchesSixteenths(m_sRow[nTRow].sStart.nLeangth, nFeet, nInches, Sixteeths );
                 strReport.append("Start: ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
+                if(m_sRow[nTRow].sStart.bRequires2ndCut)
+                    strReport.append(str2ndCutIndicator);
                 strReport.append("\n");
             }
         }
@@ -112,6 +201,8 @@ QString FloorSection::GenerateCutList()
                 strReport.append("Row: ").append(QString::number(nTRow)).append("\t");
                 convertSixteenthsToFeetInchesSixteenths(m_sRow[nTRow].sEnd.nLeangth, nFeet, nInches, Sixteeths );
                 strReport.append("End: ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ; 
+                if(m_sRow[nTRow].sEnd.bRequires2ndCut)
+                    strReport.append(str2ndCutIndicator);
                 strReport.append("\n");
             }
         }
@@ -260,23 +351,35 @@ void FloorSection::CalcCutList()
                     for(int jjj = iii; jjj < m_nStartBufferIndex; jjj++) //removes selected startbuffer board
                     {
                         m_sStarsBuffer[jjj] = m_sStarsBuffer[jjj+1];
-
                     }
                     m_nStartBufferIndex--;
 
-                    m_sRow[nRowIndex].sEnd.nLeangth = CalculateRemainderLength(m_sRow[nRowIndex].sStart.nLeangth,m_sRow[nRowIndex].nNumberOfCompleteBoards );
-                    m_nCurrentCutNumber++;
-                    m_sRow[nRowIndex].sEnd.nCutNumber = m_nCurrentCutNumber;
 
-                    int nTempStart = (m_nBoardLength - (m_sRow[nRowIndex].sEnd.nLeangth) - m_nSawBladeWidth );
-                    if(nTempStart >= m_nMinimumLength)
+                    int nTempEndLength = CalculateRemainderLength(m_sRow[nRowIndex].sStart.nLeangth,m_sRow[nRowIndex].nNumberOfCompleteBoards );
+                    bool ok = false;
+                    board sTempEndBoard = FindBoardCloseToLength(nTempEndLength,END, ok);
+                    if(ok)
                     {
-                        m_nStartBufferIndex++; //enter remainder into buffer
-                        m_sStarsBuffer[m_nStartBufferIndex].nCutNumber = m_nCurrentCutNumber;
-                        m_sStarsBuffer[m_nStartBufferIndex].nLeangth = nTempStart;
+                        m_sRow[nRowIndex].sEnd = sTempEndBoard;
                     }
-                    bSolutionFound = true;
 
+
+                    if(!(ok))//create new cut
+                    {
+                        m_sRow[nRowIndex].sEnd.nLeangth = nTempEndLength;   //CalculateRemainderLength(m_sRow[nRowIndex].sStart.nLeangth,m_sRow[nRowIndex].nNumberOfCompleteBoards );
+                        m_nCurrentCutNumber++;
+                        m_sRow[nRowIndex].sEnd.nCutNumber = m_nCurrentCutNumber;
+
+                        int nTempStart = (m_nBoardLength - (m_sRow[nRowIndex].sEnd.nLeangth) - m_nSawBladeWidth );
+                        if(nTempStart >= m_nMinimumLength)
+                        {
+                            m_nStartBufferIndex++; //enter remainder into buffer
+                            m_sStarsBuffer[m_nStartBufferIndex].nCutNumber = m_nCurrentCutNumber;
+                            m_sStarsBuffer[m_nStartBufferIndex].nLeangth = nTempStart;
+                        }
+                    }
+
+                    bSolutionFound = true;
                     break;
                 }
               }//end Start buffer search
@@ -300,6 +403,11 @@ void FloorSection::CalcCutList()
                         m_sEndsBuffer[jjj] = m_sEndsBuffer[jjj+1];
                     }
                     m_nEndBufferIndex--;
+
+                    nTempStartLength //  <==============================================================
+
+
+
 
                     m_sRow[nRowIndex].sStart.nLeangth = CalculateRemainderLength(m_sRow[nRowIndex].sEnd.nLeangth,m_sRow[nRowIndex].nNumberOfCompleteBoards );
                     m_nCurrentCutNumber++;
@@ -373,17 +481,23 @@ void FloorSection::inializeVariables()
     board sTemp;
     sTemp.nCutNumber = 0;
     sTemp.nLeangth = 0;
-    sTemp.nLeangth = 0;
+    sTemp.bRequires2ndCut = false;
 
     for(int iii = 0; iii < 254; iii++)
     {
          m_sStarsBuffer[iii] = sTemp;
          m_sEndsBuffer[iii] = sTemp;
+
          m_sRow[iii].nNumberOfCompleteBoards = 0;
-         m_sRow[iii].sEnd.nCutNumber = 0;
-         m_sRow[iii].sStart.nCutNumber = 0;
-         m_sRow[iii].sEnd.nLeangth = 0;
-         m_sRow[iii].sStart.nLeangth = 0;
+
+         m_sRow[iii].sStart = sTemp;
+         m_sRow[iii].sEnd = sTemp;
+
+//         m_sRow[iii].nNumberOfCompleteBoards = 0;
+//         m_sRow[iii].sEnd.nCutNumber = 0;
+//         m_sRow[iii].sStart.nCutNumber = 0;
+//         m_sRow[iii].sEnd.nLeangth = 0;
+//         m_sRow[iii].sStart.nLeangth = 0;
 
     }
 

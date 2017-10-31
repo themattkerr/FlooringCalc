@@ -1,18 +1,12 @@
 #ifndef FLOORSECTION_H
 #define FLOORSECTION_H
 
+#define MAX_VALUE 255
+
 #include <QString>
 #include "mattcalculations.h"
 
-struct board {
-    int nLeangth;
-    int nCutNumber;
-};
-struct row {
-    board sStart;
-    board sEnd;
-    int nNumberOfCompleteBoards;
-};
+#include "varibledeclarations.h"
 
 class FloorSection
 {
@@ -31,6 +25,7 @@ private:
     int m_nSawBladeWidth = 2;
     int m_nExpansionGap = 8;
     int m_nMinimumLength = (9*16);
+    int m_nMaxWastePerBoard = (3*16);
     int m_nNumOfRowsToCheck = 5;
     int m_nOverlapMin = (19*16);
     int m_nStairStepRange = (2*16);
@@ -54,6 +49,11 @@ private:
     void CalcCutList();
     QString DrawBoard(int nLengthInicater);
 
+    board TakeBoardFromBuffer(int nBufferLocation, int nBoardType);
+    void RemoveBoardFromStartBuffer(int nBoardToRemove);
+    void RemoveBoardFromEndBuffer(int nBoardToRemove);
+    board FindBoardCloseToLength(int nLengthToCheck, int nBoardType, bool &ok);
+
 public:
     FloorSection();
     void EnterSectionLength(int nSixteenthsOfAnInch);
@@ -70,5 +70,9 @@ public:
     QString GetPreview();
 
 };
+
+
+
+
 
 #endif // FLOORSECTION_H
