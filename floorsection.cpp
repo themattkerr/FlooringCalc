@@ -92,10 +92,12 @@ board FloorSection::FindBoardCloseToLength(int nLengthToCheck, int nBoardType, b
     {
         for (int iii = 1; iii <= m_nStartBufferIndex;iii ++)
         {
-            if(m_nMaxWastePerBoard >= m_sStarsBuffer[iii].nLeangth - nLengthToCheck )
+            int nDifference = m_sStarsBuffer[iii].nLeangth - nLengthToCheck;
+            if(m_nMaxWastePerBoard >= nDifference && 0 <= nDifference )
             {
                 sTempBoard = TakeBoardFromBuffer(iii, nBoardType);
                 sTempBoard.bRequires2ndCut = true;
+                sTempBoard.nLeangth = nLengthToCheck;
                 ok=true;
                 return sTempBoard;
             }
@@ -106,10 +108,12 @@ board FloorSection::FindBoardCloseToLength(int nLengthToCheck, int nBoardType, b
     {
         for(int III = 1; III <= m_nEndBufferIndex;III++)
         {
-            if(m_nMaxWastePerBoard >= m_sEndsBuffer[III].nLeangth - nLengthToCheck )
+            int nDifference = m_sEndsBuffer[III].nLeangth - nLengthToCheck;
+            if(m_nMaxWastePerBoard >= nDifference && 0 <= nDifference )
             {
                 sTempBoard = TakeBoardFromBuffer(III, nBoardType);
                 sTempBoard.bRequires2ndCut = true;
+                sTempBoard.nLeangth = nLengthToCheck;
                 ok=true;
                 return sTempBoard;
             }
@@ -397,28 +401,35 @@ void FloorSection::CalcCutList()
                 int nTempStartLength = CalculateRemainderLength(m_sEndsBuffer[iii].nLeangth,nTempNumOfBoards );
                 if(OkStartLength(nTempStartLength,nRowIndex))
                 {
+                    m_sRow[nRowIndex].nNumberOfCompleteBoards = nTempNumOfBoards;
                     m_sRow[nRowIndex].sEnd = m_sEndsBuffer[iii];
+
                     for(int jjj = iii; jjj < m_nEndBufferIndex; jjj++) //removes selected End buffer board
                     {
                         m_sEndsBuffer[jjj] = m_sEndsBuffer[jjj+1];
                     }
                     m_nEndBufferIndex--;
 
-                    nTempStartLength //  <==============================================================
-
-
-
-
-                    m_sRow[nRowIndex].sStart.nLeangth = CalculateRemainderLength(m_sRow[nRowIndex].sEnd.nLeangth,m_sRow[nRowIndex].nNumberOfCompleteBoards );
-                    m_nCurrentCutNumber++;
-                    m_sRow[nRowIndex].sStart.nCutNumber = m_nCurrentCutNumber;
-
-                    int nTempEnd = (m_nBoardLength - (m_sRow[nRowIndex].sStart.nLeangth) - m_nSawBladeWidth );
-                    if (nTempEnd >= m_nMinimumLength )
+                    bool ok = false;
+                    board sTempStartBoard = FindBoardCloseToLength(nTempStartLength,START,ok);
+                    if(ok)
                     {
-                        m_nEndBufferIndex++; //enter remainder into buffer
-                        m_sEndsBuffer[m_nEndBufferIndex].nCutNumber = m_nCurrentCutNumber;
-                        m_sEndsBuffer[m_nEndBufferIndex].nLeangth = nTempEnd;
+                        m_sRow[nRowIndex].sStart = sTempStartBoard;
+                    }
+
+                    else
+                    {
+                        m_sRow[nRowIndex].sStart.nLeangth = nTempStartLength;//CalculateRemainderLength(m_sRow[nRowIndex].sEnd.nLeangth,m_sRow[nRowIndex].nNumberOfCompleteBoards );
+                        m_nCurrentCutNumber++;
+                        m_sRow[nRowIndex].sStart.nCutNumber = m_nCurrentCutNumber;
+
+                        int nTempEnd = (m_nBoardLength - (m_sRow[nRowIndex].sStart.nLeangth) - m_nSawBladeWidth );
+                        if (nTempEnd >= m_nMinimumLength )
+                        {
+                            m_nEndBufferIndex++; //enter remainder into buffer
+                            m_sEndsBuffer[m_nEndBufferIndex].nCutNumber = m_nCurrentCutNumber;
+                            m_sEndsBuffer[m_nEndBufferIndex].nLeangth = nTempEnd;
+                        }
                     }
                     bSolutionFound = true;
                     break;
@@ -440,7 +451,7 @@ void FloorSection::CalcCutList()
                 bSolutionFound = OkStartLength(nTempStartlength,nRowIndex );
                 // ====================== This should mean less waste
                 int nTempEnd = (m_nBoardLength - nTempStartlength - m_nSawBladeWidth);
-                if (nTempEnd < m_nMinimumLength)
+                if (nTempEnd < m_nMinimumLength && nTempEnd >= m_nMaxWastePerBoard)
                     bSolutionFound = false;
             }
             m_nCurrentCutNumber++;
@@ -455,18 +466,27 @@ void FloorSection::CalcCutList()
                 m_sEndsBuffer[m_nEndBufferIndex].nLeangth = nTempEnd;
             }
 
-
-            m_nCurrentCutNumber++;
-            m_sRow[nRowIndex].sEnd.nLeangth = CalculateRemainderLength(m_sRow[nRowIndex].sStart.nLeangth,m_sRow[nRowIndex].nNumberOfCompleteBoards );
-            m_sRow[nRowIndex].sEnd.nCutNumber = m_nCurrentCutNumber;
-
-            int nTempStart = (m_nBoardLength - (m_sRow[nRowIndex].sEnd.nLeangth) - m_nSawBladeWidth );
-            if (nTempStart > m_nMinimumLength)
+            bool ok = false;
+            int nCalculatedEndLength = CalculateRemainderLength(m_sRow[nRowIndex].sStart.nLeangth,m_sRow[nRowIndex].nNumberOfCompleteBoards );
+            board sTempEndBoard = FindBoardCloseToLength(nCalculatedEndLength,END,ok);
+            if(ok)
             {
-                m_nStartBufferIndex++; //enter remainder into  Start buffer
-                m_sStarsBuffer[m_nStartBufferIndex].nCutNumber = m_nCurrentCutNumber;
-                m_sStarsBuffer[m_nStartBufferIndex].nLeangth = nTempStart;
+                m_sRow[nRowIndex].sEnd = sTempEndBoard;
             }
+            if(!ok) //Generate new cut for end
+            {
+                m_nCurrentCutNumber++;
+                m_sRow[nRowIndex].sEnd.nLeangth = nCalculatedEndLength; //CalculateRemainderLength(m_sRow[nRowIndex].sStart.nLeangth,m_sRow[nRowIndex].nNumberOfCompleteBoards );
+                m_sRow[nRowIndex].sEnd.nCutNumber = m_nCurrentCutNumber;
+
+                int nTempStart = (m_nBoardLength - (m_sRow[nRowIndex].sEnd.nLeangth) - m_nSawBladeWidth );
+                if (nTempStart > m_nMinimumLength)
+                {
+                    m_nStartBufferIndex++; //enter remainder into  Start buffer
+                    m_sStarsBuffer[m_nStartBufferIndex].nCutNumber = m_nCurrentCutNumber;
+                    m_sStarsBuffer[m_nStartBufferIndex].nLeangth = nTempStart;
+                }
+            }//end generate new end cut
 
         }
     }
