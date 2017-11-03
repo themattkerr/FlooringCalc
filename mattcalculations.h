@@ -1,7 +1,7 @@
 #ifndef MATTCALCULATIONS
 #define MATTCALCULATIONS
 
-#define VERSION_OF_MATTCALCULATIONS "1.2.1" //10/23/2017
+#define VERSION_OF_MATTCALCULATIONS "1.2.3" //10/23/2017
 
 #include <qstring.h>
 #include <QDate>
@@ -36,5 +36,21 @@ bool convertSixteenthsToFeetInchesSixteenths(int inputSixteeths, int &nFeet, int
 bool reduceSixteethsFractions(int inputSixteenths, int &nHalf, int &nQuarters, int &nEighths, int &nSixteens );
 int convertFeetInchestSixteenthsToSixteenths(int nFeet, int nInches, int nSixteenths);
 int randomInt (int nBegining, int nEnd);
+
+//-----------------------------------------------------------------------------
+
+double roundDoubleToPoints(double dInput, unsigned int nNumberOfDecimalPlaces );
+QString splitString(QString CSVLine);
+
+//QString addCommasToDouble(double dInput, unsigned int nNumberOfDecimalPlaces);
+//QString addCommasToString (QString strInput);
+//QString addDecimalPoint (QString strInput, unsigned int nNumberOfDecimalPlaces);
+//QString reverseQString(QString strInput);
+//void swapChar(QChar &cA, QChar &cB);
+
+
+
+
+
 #endif // MATTCALCULATIONS
 

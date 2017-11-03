@@ -33,7 +33,7 @@ private:
     int m_nStairStepRange = (2*16);
     int m_nCurrentCutNumber = 0;
 
-
+    s5Boards m_nLastFiveBoards;
     board m_sStarsBuffer[255];
     int m_nStartBufferIndex = 0;
 
@@ -55,6 +55,7 @@ private:
     void RemoveBoardFromStartBuffer(int nBoardToRemove);
     void RemoveBoardFromEndBuffer(int nBoardToRemove);
     board FindBoardCloseToLength(int nLengthToCheck, int nBoardType, bool &ok);
+    int FindWorkingLength(int nRowNum);
 
 public:
     FloorSection();
@@ -63,9 +64,12 @@ public:
     void EnterBoardLength(int nSixteenthsOfAnInch);
     void EnterBoardWidth(int nSixteenthsOfAnInch);
     void EnterPreviousRows(int nInputStartLength);
+    void EnterLast5Starts(s5Boards sLast5Starts);
+    void EnterMaxWaste(int nMaxWasteInches);
 
     int GetNumberOfRows();
     int GetTotalNumberOfBoardsUsed();
+    int GetMaxWasteInches();
 
     QString GetCutList();
     void inializeVariables();

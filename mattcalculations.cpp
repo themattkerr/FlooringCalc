@@ -9,7 +9,21 @@
 #include <QTime>
 #include <qglobal.h>
 
+double roundDoubleToPoints(double dInput, unsigned int nNumberOfDecimalPlaces )
+{
+    double dTemp = 0;
 
+    for(int iii = 1; iii <= nNumberOfDecimalPlaces; iii++)
+    {
+        dInput = dInput * 10;
+    }
+    dTemp = static_cast<int>(dInput + .5);
+    for(int iii = 1; iii <= nNumberOfDecimalPlaces; iii++)
+    {
+        dTemp = dTemp / 10;
+    }
+    return dTemp;
+}
 
 
 bool doubleIsEqual (double x, double y, unsigned int nNumberOfDecimalPlaces)
@@ -300,4 +314,25 @@ int randomInt (int nBegining, int nEnd)
     qsrand(QDateTime::currentMSecsSinceEpoch()/1000);
     int x = qrand() % ((nEnd+1)-nBegining) + nBegining;
     return x;
+}
+
+QString splitString(QString CSVLine)
+{
+    int nLength = CSVLine.length();
+    bool bSkipComma = false;
+    for(int iii = 0; iii < nLength; iii++)
+    {
+        if(CSVLine[iii] == '"')//skip comma toggle funtion
+        {
+            if(bSkipComma)
+                bSkipComma = false;
+            else
+                bSkipComma = true;
+        }
+        if (!bSkipComma)
+            if(CSVLine[iii] == ',')
+                CSVLine[iii] = '|';
+    }
+    CSVLine.remove('"');
+    return CSVLine;
 }

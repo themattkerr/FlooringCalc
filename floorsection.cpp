@@ -188,6 +188,24 @@ int FloorSection::CalculateRemainderLength(int nBoardLength, int &nNumOfFullBoar
     int nRemainderLength = m_nSectionLength - nBoardLength - (nNumOfFullBoards*m_nBoardLength) - (2*m_nExpansionGap);
     return nRemainderLength;
 }
+int FloorSection::FindWorkingLength(int nRowNum)
+{
+    int nNumberOfSixteenthsPerInch = 16;
+    int OkLengths[255];
+    int OkLengthsIndex = 0;
+    for (int iii = 0;iii < 255; iii++)
+        OkLengths[iii] = 0;
+
+    for (int nTestLength = 0; nTestLength < m_nBoardLength; nTestLength = nTestLength + nNumberOfSixteenthsPerInch)
+    {
+        if(OkStartLength(nTestLength, nRowNum))
+        {
+            OkLengths[OkLengthsIndex] = nTestLength;
+            OkLengthsIndex++;
+        }
+    }
+    return OkLengths[randomInt(0,OkLengthsIndex)];
+}
 
 QString FloorSection::GenerateCutList()
 {
@@ -306,6 +324,22 @@ void FloorSection::EnterPreviousRows(int nInputStartLength)
     sTempBoard.nLeangth = nInputStartLength;
     sTempBoard.nCutNumber = 0;
 
+}
+void FloorSection::EnterLast5Starts(s5Boards sLast5Starts)
+{
+    m_nNumberOfPreviousRows = sLast5Starts.nNumberOfBoards;
+    for (int iii = 1; iii <= sLast5Starts.nNumberOfBoards; iii++)
+    {
+        m_sRow[iii].sStart = sLast5Starts.sBrd[iii];
+    }
+}
+void FloorSection::EnterMaxWaste(int nMaxWasteInches)
+{
+    m_nMaxWastePerBoard = nMaxWasteInches * 16;
+}
+int FloorSection::GetMaxWasteInches()
+{
+    return m_nMaxWastePerBoard / 16;
 }
 
 int FloorSection::GetNumberOfRows()
@@ -463,12 +497,13 @@ void FloorSection::CalcCutList()
         } // end While loop.
         if (!(bSolutionFound)) //generate random start cut
         {
-            int nBeginging = m_nMinimumLength / 16;
-            int nEnding = m_nBoardLength / 16;
+//            int nBeginging = m_nMinimumLength / 16;
+//            int nEnding = m_nBoardLength / 16;
             int nTempStartlength=0;
             while((!(bSolutionFound)))
             {
-                nTempStartlength = (randomInt(nBeginging,nEnding))*16; // <------------- need to multiply by 16
+                //nTempStartlength = (randomInt(nBeginging,nEnding))*16; // <------------- need to multiply by 16
+                nTempStartlength = FindWorkingLength(nRowIndex);
                 bSolutionFound = OkStartLength(nTempStartlength,nRowIndex );
                 // ====================== This should mean less waste
                 int nTempEnd = (m_nBoardLength - nTempStartlength - m_nSawBladeWidth);
@@ -515,9 +550,15 @@ void FloorSection::CalcCutList()
 }
 void FloorSection::inializeVariables()
 {
-     m_nCurrentCutNumber = 0;
-     m_nStartBufferIndex = 0;
-     m_nEndBufferIndex = 0;
+
+    sFailLog.nMaxWasteFail = 0;
+    sFailLog.nMinLengthFail = 0;
+    sFailLog.nProportionFail = 0;
+    sFailLog.nStairStepFail = 0;
+
+    m_nCurrentCutNumber = 0;
+    m_nStartBufferIndex = 0;
+    m_nEndBufferIndex = 0;
 
     board sTemp;
     sTemp.nCutNumber = 0;
@@ -534,51 +575,50 @@ void FloorSection::inializeVariables()
          m_sRow[iii].sStart = sTemp;
          m_sRow[iii].sEnd = sTemp;
 
-//         m_sRow[iii].nNumberOfCompleteBoards = 0;
-//         m_sRow[iii].sEnd.nCutNumber = 0;
-//         m_sRow[iii].sStart.nCutNumber = 0;
-//         m_sRow[iii].sEnd.nLeangth = 0;
-//         m_sRow[iii].sStart.nLeangth = 0;
-
     }
 
-    m_nStartBufferIndex = 4;
+    m_nStartBufferIndex = 7;
 
+    m_sStarsBuffer[1].nCutNumber = 3014 ;
+    m_sStarsBuffer[1].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,8,11);
+    m_sStarsBuffer[2].nCutNumber = 1011 ;
+    m_sStarsBuffer[2].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,9,0 );
+    m_sStarsBuffer[3].nCutNumber = 1027 ;
+    m_sStarsBuffer[3].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,8,8);
+    m_sStarsBuffer[4].nCutNumber = 1030 ;
+    m_sStarsBuffer[4].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,5,8);
+    m_sStarsBuffer[5].nCutNumber = 1034 ;
+    m_sStarsBuffer[5].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,1,8);
+    m_sStarsBuffer[6].nCutNumber = 1042 ;
+    m_sStarsBuffer[6].nLeangth = convertFeetInchestSixteenthsToSixteenths(5,2,8);
+    m_sStarsBuffer[7].nCutNumber = 1003 ;
+    m_sStarsBuffer[7].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,8,6);
 
+    m_nEndBufferIndex = 8;
 
-    m_sStarsBuffer[1].nCutNumber = 5003 ;
-    m_sStarsBuffer[1].nLeangth = convertFeetInchestSixteenthsToSixteenths(0,9,0);
+    m_sEndsBuffer[1].nCutNumber = 2006 ;
+    m_sEndsBuffer[1].nLeangth = convertFeetInchestSixteenthsToSixteenths(0,7,11 ) ;
+    m_sEndsBuffer[2].nCutNumber = 1006 ;
+    m_sEndsBuffer[2].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,7,5 ) ;
+    m_sEndsBuffer[3].nCutNumber = 1024;
+    m_sEndsBuffer[3].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,8,11 ) ;
+    m_sEndsBuffer[4].nCutNumber = 1032 ;
+    m_sEndsBuffer[4].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,4,14 ) ;
+    m_sEndsBuffer[5].nCutNumber = 1036 ;
+    m_sEndsBuffer[5].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,8,14 ) ;
+    m_sEndsBuffer[6].nCutNumber = 1041 ;
+    m_sEndsBuffer[6].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,1,11 ) ;
+    m_sEndsBuffer[7].nCutNumber = 1009 ;
+    m_sEndsBuffer[7].nLeangth = convertFeetInchestSixteenthsToSixteenths(4,7,4 ) ;
+    m_sEndsBuffer[8].nCutNumber = 1008 ;
+    m_sEndsBuffer[8].nLeangth = convertFeetInchestSixteenthsToSixteenths(2,0,2 ) ;
 
-    m_sStarsBuffer[2].nCutNumber = 3014 ;
-    m_sStarsBuffer[2].nLeangth = convertFeetInchestSixteenthsToSixteenths(3,8,11);
-
-    m_sStarsBuffer[3].nCutNumber = 4002 ;
-    m_sStarsBuffer[3].nLeangth = convertFeetInchestSixteenthsToSixteenths(2,0,11);
-
-    m_sStarsBuffer[4].nCutNumber = 5021 ;
-    m_sStarsBuffer[4].nLeangth = convertFeetInchestSixteenthsToSixteenths(1,5,8);
-
-    m_nEndBufferIndex = 4;
-
-    m_sEndsBuffer[2].nCutNumber = 2006 ;
-    m_sEndsBuffer[2].nLeangth = convertFeetInchestSixteenthsToSixteenths(0,7,11 ) ;
-    m_sEndsBuffer[3].nCutNumber = 2008 ;
-    m_sEndsBuffer[3].nLeangth = convertFeetInchestSixteenthsToSixteenths(2,9,10 ) ;
-
-
-    m_sEndsBuffer[4].nCutNumber = 5022 ;
-    m_sEndsBuffer[4].nLeangth = convertFeetInchestSixteenthsToSixteenths(2,2,7) ;
-    m_sEndsBuffer[5].nCutNumber =  5001;
-    m_sEndsBuffer[5].nLeangth = convertFeetInchestSixteenthsToSixteenths(0,9,0 ) ;
-    m_sEndsBuffer[6].nCutNumber =  5023;
-    m_sEndsBuffer[6].nLeangth = convertFeetInchestSixteenthsToSixteenths(1,6,3 ) ;
-
-    m_nNumberOfPreviousRows = 5;
-    m_sRow[1].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 5,4 ,0 ));
-    m_sRow[2].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 1, 7,8 ));
-    m_sRow[3].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 4, 8,0 ));
-    m_sRow[4].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 2, 8,12 ));
-    m_sRow[5].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 5,5 ,8 ));
+//    m_nNumberOfPreviousRows = 5;
+//    m_sRow[1].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 5,4 ,0 ));
+//    m_sRow[2].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 1, 7,8 ));
+//    m_sRow[3].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 4, 8,0 ));
+//    m_sRow[4].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 2, 8,12 ));
+//    m_sRow[5].sStart.nLeangth = (convertFeetInchestSixteenthsToSixteenths( 5,5 ,8 ));
 
 
 }
@@ -607,7 +647,8 @@ QString FloorSection::GetPreview()
 QString FloorSection::DrawBoard(int nLengthInicater)
 {
     QString strPreview;
-    for (int iii = 1;iii < (nLengthInicater/24);iii++)
+    //strPreview.append("|");
+    for (int iii = 1;iii < static_cast<int>( roundDoubleToPoints((static_cast<double>(nLengthInicater)/24),0));iii++)
         strPreview.append("_");
     strPreview.append("|");
     return strPreview;

@@ -12,6 +12,11 @@ struct board {
     bool bRequires2ndCut;
 };
 
+struct s5Boards{
+    int nNumberOfBoards;
+    board sBrd[6];
+};
+
 struct row {
     board sStart;
     board sEnd;
