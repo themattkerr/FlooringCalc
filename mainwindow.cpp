@@ -28,12 +28,12 @@ void MainWindow::on_pushButton_clicked()
         m_sLast5Starts.sBrd[iii].nCutNumber = -1;
         m_sLast5Starts.sBrd[iii].nLeangth = -1;
     }
-    m_sLast5Starts.sBrd[1].nLeangth = (convertFeetInchestSixteenthsToSixteenths( 1,8,0));
-    m_sLast5Starts.sBrd[2].nLeangth = (convertFeetInchestSixteenthsToSixteenths( 4,11,0));
-    m_sLast5Starts.sBrd[3].nLeangth = (convertFeetInchestSixteenthsToSixteenths( 2,2,0 ));
-    m_sLast5Starts.sBrd[4].nLeangth = (convertFeetInchestSixteenthsToSixteenths( 5,7,6 ));
-    m_sLast5Starts.sBrd[5].nLeangth = (convertFeetInchestSixteenthsToSixteenths( 1,2,0 ));
 
+    m_sLast5Starts.sBrd[1].nLeangth = (convertFeetInchestSixteenthsToSixteenths( 5,0,0 ));
+    m_sLast5Starts.sBrd[2].nLeangth = (convertFeetInchestSixteenthsToSixteenths( 0,21,0 ));
+    m_sLast5Starts.sBrd[3].nLeangth = (convertFeetInchestSixteenthsToSixteenths( 0,46,0 ));
+    m_sLast5Starts.sBrd[4].nLeangth = (convertFeetInchestSixteenthsToSixteenths( 1,2,0));
+    m_sLast5Starts.sBrd[5].nLeangth = (convertFeetInchestSixteenthsToSixteenths( 3,4,0));
 
     Section1.EnterBoardLength( convertFeetInchestSixteenthsToSixteenths    (ui->BoardLengthFeetSpinBox->value(),
                                                                             ui->BoardLengthInchesSpinBox->value(),
@@ -54,6 +54,8 @@ void MainWindow::on_pushButton_clicked()
     Section1.EnterLast5Starts(m_sLast5Starts);
 
     ui->textBrowser->setText( Section1.GetCutList());
+    ui->PreviewWindow->clear();
+    ui->PreviewWindow->setText(Section1.GetPreview());
 
 }
 

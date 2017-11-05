@@ -27,7 +27,7 @@ private:
     int m_nSawBladeWidth = 2;
     int m_nExpansionGap = 8;
     int m_nMinimumLength = (9*16);
-    int m_nMaxWastePerBoard = (6*16);
+    int m_nMaxWastePerBoard = (4*16);
     int m_nNumOfRowsToCheck = 5;
     int m_nOverlapMin = (19*16);
     int m_nStairStepRange = (2*16);
