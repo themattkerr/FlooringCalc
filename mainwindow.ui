@@ -122,7 +122,7 @@
     <item row="1" column="3">
      <widget class="QSpinBox" name="SectLenInchesSpinBox">
       <property name="value">
-       <number>70</number>
+       <number>0</number>
       </property>
      </widget>
     </item>
@@ -139,7 +139,7 @@
     <item row="1" column="2">
      <widget class="QSpinBox" name="SectLenFeetSpinBox">
       <property name="value">
-       <number>0</number>
+       <number>14</number>
       </property>
      </widget>
     </item>
@@ -166,7 +166,7 @@
     <item row="2" column="2">
      <widget class="QSpinBox" name="SectionWidthFeetSpinBox">
       <property name="value">
-       <number>0</number>
+       <number>10</number>
       </property>
      </widget>
     </item>

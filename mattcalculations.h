@@ -41,6 +41,7 @@ int randomInt (int nBegining, int nEnd);
 
 double roundDoubleToPoints(double dInput, unsigned int nNumberOfDecimalPlaces );
 QString splitString(QString CSVLine);
+QString intToLetters(int nInputNum);
 
 //QString addCommasToDouble(double dInput, unsigned int nNumberOfDecimalPlaces);
 //QString addCommasToString (QString strInput);

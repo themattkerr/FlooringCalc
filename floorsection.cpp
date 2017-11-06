@@ -3,7 +3,7 @@
 
 FloorSection::FloorSection()
 {
-    //inializeVariables();
+
 }
 
 
@@ -12,8 +12,6 @@ void FloorSection::CalcNumRows()
     if (m_nBoardWidth > 0 && m_nSectionWidth >0)
     {
         int nTempNumberOfNewRows = m_nSectionWidth/m_nBoardWidth;
-//        if(m_nSectionWidth%m_nBoardWidth)
-//            nTempNumberOfNewRows++;
         m_nNumberOfRows = m_nNumberOfPreviousRows + nTempNumberOfNewRows;
     }
     else
@@ -221,7 +219,7 @@ QString FloorSection::GenerateCutList()
             if(m_sRow[nTRow].sStart.nCutNumber == nCutNum )
             {
                 int nFeet, nInches, Sixteeths;
-                strReport.append("Row: ").append(QString::number(nTRow)).append("\t");
+                strReport.append("Row: (").append(intToLetters(nTRow)).append(")  ").append("\t");
                 convertSixteenthsToFeetInchesSixteenths(m_sRow[nTRow].sStart.nLeangth, nFeet, nInches, Sixteeths );
                 strReport.append("Start: ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
                 if(m_sRow[nTRow].sStart.bRequires2ndCut)
@@ -234,7 +232,7 @@ QString FloorSection::GenerateCutList()
             if(m_sRow[nTRow].sEnd.nCutNumber == nCutNum )
             {
                 int nFeet, nInches, Sixteeths;
-                strReport.append("Row: ").append(QString::number(nTRow)).append("\t");
+                strReport.append("Row: (").append(intToLetters(nTRow)).append(")  ").append("\t");
                 convertSixteenthsToFeetInchesSixteenths(m_sRow[nTRow].sEnd.nLeangth, nFeet, nInches, Sixteeths );
                 strReport.append("End: ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ; 
                 if(m_sRow[nTRow].sEnd.bRequires2ndCut)
@@ -270,7 +268,7 @@ QString FloorSection::GenerateCutList()
     for(int iii = (m_nNumberOfPreviousRows+1); iii <= m_nNumberOfRows; iii++)
     {
         int nFeet, nInches, Sixteeths;
-        strReport.append("Row: ").append(QString::number(iii)).append("\n");
+        strReport.append("Row: ").append(intToLetters(iii)).append("\n");
         convertSixteenthsToFeetInchesSixteenths(m_sRow[iii].sStart.nLeangth, nFeet, nInches, Sixteeths );
         strReport.append("Start:  ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
         strReport.append("   Cut: ").append(QString::number(m_sRow[iii].sStart.nCutNumber   ));
@@ -629,9 +627,9 @@ QString FloorSection::GetPreview()
     for (int nRow = 1; nRow <= m_nNumberOfRows; nRow++)
     {
         strPreview.append("Row ");
-        if(nRow < 10)
-            strPreview.append("0");
-        strPreview.append(QString::number(nRow)).append(": ");
+        if(nRow < 27)
+            strPreview.append(" ");
+        strPreview.append(intToLetters(nRow) ).append(": ");
 
         strPreview.append("|").append(DrawBoard(m_sRow[nRow].sStart.nLeangth));
         for (int nFullBoard = 1; nFullBoard <= m_sRow[nRow].nNumberOfCompleteBoards; nFullBoard++ )

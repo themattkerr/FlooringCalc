@@ -336,3 +336,23 @@ QString splitString(QString CSVLine)
     CSVLine.remove('"');
     return CSVLine;
 }
+
+QString intToLetters(int nInputNum)
+{
+    QString strLetter;
+    int nTens = 0;
+    int nOnes = 1;
+    for (int iii = 1; iii < nInputNum; iii++)
+    {
+        nOnes++;
+        if (!(iii%26))
+        {
+            nTens++;
+            nOnes = 1;
+         }
+    }
+    if (nTens >0)
+        strLetter.append(nTens+64);
+    strLetter.append(nOnes+64);
+    return strLetter;
+}
