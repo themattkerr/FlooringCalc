@@ -266,6 +266,36 @@ int   numOfBusinessDaysBetween(QDate dtStartDate, QDate dtEndDate, QString &strL
     strListOfDaysOff = "Error";
     return -1;
 }
+QString createFeetInchesString(int nInputSixteenths, unsigned int nFormat, bool &ok)
+{
+    if (nInputSixteenths < 0)
+    {
+        ok = false;
+        return "input error. input less than 0";
+    }
+    if(!(nFormat == WORDS || nFormat == MARKS))
+    {
+        ok = false;
+        return "format error.";
+    }
+
+    QString strOutput;
+    int nFeet=0; int nInches=0; int nSixteenths=0;
+    int nHalf =0; int nQuarters=0; int nEighths=0; int nSixteens=0;
+    ok = convertSixteenthsToFeetInchesSixteenths(nInputSixteenths, nFeet, nInches, nSixteenths);
+    ok = reduceSixteethsFractions(nSixteenths, nHalf, nQuarters, nEighths, nSixteens  );
+    QString strFraction = makeFractionString( nHalf, nQuarters, nEighths, nSixteens );
+
+    strOutput.append(QString::number(nFeet));
+    if(nFormat == WORDS)    {strOutput.append(" ").append("feet ");}
+    if(nFormat == MARKS)    {strOutput.append("' ");}
+
+    strOutput.append(QString::number(nInches)).append(" ").append(strFraction);
+    if(nFormat == WORDS)    {strOutput.append(" ").append("inches ");}
+    if(nFormat == MARKS)    {strOutput.append('" ');}
+
+    return strOutput;
+}
 
 bool convertSixteenthsToFeetInchesSixteenths(int inputSixteeths, int &nFeet, int &nInches, int &nSixteenths)
 {
@@ -283,7 +313,42 @@ bool convertSixteenthsToFeetInchesSixteenths(int inputSixteeths, int &nFeet, int
     else
         return false;
 }
+QString makeFractionString(int nHalf, int nQuarters, int nEighths, int nSixteens )
+{
+    if(!( (nHalf >= 0 && nHalf < 2)           &&
+             (nQuarters >= 0 && nQuarters < 4)   &&
+             (nEighths >=0 && nEighths < 8)      &&
+             (nSixteens >= 0 && nSixteens < 16)  ))
+           return "input error";
 
+       QString strOutput;
+       strOutput.append("/");
+       if (nHalf > 0)
+       {
+           strOutput.prepend(QString::number(nHalf));
+           strOutput.append("2");
+           return strOutput;
+       }
+       if (nQuarters > 0)
+       {
+           strOutput.prepend(QString::number(nQuarters));
+           strOutput.append("4");
+           return strOutput;
+       }
+       if (nEighths > 0)
+       {
+           strOutput.prepend(QString::number(nEighths));
+           strOutput.append("8");
+           return strOutput;
+       }
+       if (nSixteens > 0)
+       {
+           strOutput.prepend(QString::number(nSixteens));
+           strOutput.append("16");
+           return strOutput;
+       }
+       return "";
+}
 bool reduceSixteethsFractions(int inputSixteenths, int &nHalf, int &nQuarters, int &nEighths, int &nSixteens )
 {
     nHalf = 0;
@@ -291,10 +356,19 @@ bool reduceSixteethsFractions(int inputSixteenths, int &nHalf, int &nQuarters, i
     nEighths = 0;
     nSixteens = 0;
 
+    if (inputSixteenths >= 16 || inputSixteenths <= -16)
+    {
+        nHalf = -1;
+        nQuarters = -1;
+        nEighths = -1;
+        nSixteens = -1;
+        return false;
+    }
 
-    if(!inputSixteenths%8)  {nHalf = inputSixteenths / 8;       return true;  }
-    if(!inputSixteenths%4)  {nQuarters = inputSixteenths / 4;   return true;  }
-    if(!inputSixteenths%2)  {nEighths = inputSixteenths / 2;    return true;  }
+    if(inputSixteenths == 0){return true;}
+    if(!(inputSixteenths%8))  {nHalf = inputSixteenths / 8;       return true;  }
+    if(!(inputSixteenths%4))  {nQuarters = inputSixteenths / 4;   return true;  }
+    if(!(inputSixteenths%2))  {nEighths = inputSixteenths / 2;    return true;  }
     nSixteens = inputSixteenths;
     return false;
 }
@@ -339,6 +413,8 @@ QString splitString(QString CSVLine)
 
 QString intToLetters(int nInputNum)
 {
+    if (nInputNum > 702 || nInputNum <= 0) //Only works 1 == A to 702 == ZZ
+        return "input error";
     QString strLetter;
     int nTens = 0;
     int nOnes = 1;
@@ -352,7 +428,7 @@ QString intToLetters(int nInputNum)
          }
     }
     if (nTens >0)
-        strLetter.append(nTens+64);
+        strLetter.append(nTens+64);//64 is the ascii offset
     strLetter.append(nOnes+64);
     return strLetter;
 }

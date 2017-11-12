@@ -220,8 +220,12 @@ QString FloorSection::GenerateCutList()
             {
                 int nFeet, nInches, Sixteeths;
                 strReport.append("Row: (").append(intToLetters(nTRow)).append(")  ").append("\t");
-                convertSixteenthsToFeetInchesSixteenths(m_sRow[nTRow].sStart.nLeangth, nFeet, nInches, Sixteeths );
-                strReport.append("Start: ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
+                //convertSixteenthsToFeetInchesSixteenths(m_sRow[nTRow].sStart.nLeangth, nFeet, nInches, Sixteeths );
+                //strReport.append("Start: ").append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
+                bool ok;
+                QString tempFeetInches = createFeetInchesString(m_sRow[nTRow].sStart.nLeangth, WORDS, ok);
+                strReport.append("Start: ").append(tempFeetInches);
+
                 if(m_sRow[nTRow].sStart.bRequires2ndCut)
                     strReport.append(str2ndCutIndicator);
                 strReport.append("\n");

@@ -19,6 +19,10 @@ enum dayOfWeek{
     SUNDAY = 7
 
 };
+enum feetInchesFormat{
+    WORDS = 0,
+    MARKS = 1
+};
 
 bool doubleIsEqual (double x, double y, unsigned int nNumberOfDecimalPlaces);
 
@@ -32,9 +36,12 @@ void  dayOfWeekStats(QDate dtDay, int &nDayOfWeek, int &nHowManyOfDayOfWeekInMon
 QDate dateBusinessDaysAway(QDate dtInputDate, int nNumOfBusinessDays, QString &strListOfDaysOff);
 int   numOfBusinessDaysBetween(QDate dtStartDate, QDate dtEndDate, QString &strListOfDaysOff);
 
+QString createFeetInchesString(int nInputSixteenths, unsigned int nFormat, bool &ok);
+QString makeFractionString(int nHalf, int nQuarters, int nEighths, int nSixteens );
 bool convertSixteenthsToFeetInchesSixteenths(int inputSixteeths, int &nFeet, int &nInches, int &nSixteenths);
 bool reduceSixteethsFractions(int inputSixteenths, int &nHalf, int &nQuarters, int &nEighths, int &nSixteens );
 int convertFeetInchestSixteenthsToSixteenths(int nFeet, int nInches, int nSixteenths);
+
 int randomInt (int nBegining, int nEnd);
 
 //-----------------------------------------------------------------------------
