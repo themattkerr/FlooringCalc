@@ -32,7 +32,7 @@ private:
     int m_nOverlapMin = (19*16);
     int m_nStairStepRange = (2*16);
     int m_nCurrentCutNumber = 0;
-    unsigned int m_nFeetInchesFormat = WORDS;
+    unsigned int m_nFeetInchesFormat = MARKS;
 
     s5Boards m_nLastFiveBoards;
     board m_sStarsBuffer[255];

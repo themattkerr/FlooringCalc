@@ -272,22 +272,22 @@ QString FloorSection::GenerateCutList()
     {
         bool ok;
         QString tempFeetInches;
-        //int nFeet, nInches, Sixteeths;
         strReport.append("Row: ").append(intToLetters(iii)).append("\n");
-//        convertSixteenthsToFeetInchesSixteenths(m_sRow[iii].sStart.nLeangth, nFeet, nInches, Sixteeths );
         tempFeetInches = createFeetInchesString(m_sRow[iii].sStart.nLeangth, m_nFeetInchesFormat, ok );
-        strReport.append("Start:  ").append(tempFeetInches);//.append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
+
+        strReport.append("Start:  ").append(tempFeetInches);
         strReport.append("   Cut: ").append(QString::number(m_sRow[iii].sStart.nCutNumber   ));
         strReport.append("\n");
+
         strReport.append("Number of Complete Boards: ").append(QString::number(m_sRow[iii].nNumberOfCompleteBoards)).append("\n");
-//        convertSixteenthsToFeetInchesSixteenths(m_sRow[iii].sEnd.nLeangth, nFeet, nInches, Sixteeths );
+
         tempFeetInches = createFeetInchesString(m_sRow[iii].sEnd.nLeangth, m_nFeetInchesFormat, ok );
-        strReport.append("End:  ").append(tempFeetInches);//.append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
+        strReport.append("End:  ").append(tempFeetInches);
         strReport.append("   Cut: ").append(QString::number(m_sRow[iii].sEnd.nCutNumber   ));
+
         int temp = m_sRow[iii].sStart.nLeangth +(m_sRow[iii].nNumberOfCompleteBoards * m_nBoardLength ) + m_sRow[iii].sEnd.nLeangth;
-//        convertSixteenthsToFeetInchesSixteenths(temp, nFeet, nInches, Sixteeths );
         tempFeetInches = createFeetInchesString(temp, m_nFeetInchesFormat, ok );
-        strReport.append("\n").append("Total Row Length:  ").append(tempFeetInches);   //.append(QString::number(nFeet)).append(" ft  ").append(QString::number(nInches)).append(" in  ").append(QString::number(Sixteeths)).append(" Sixteenths")   ;
+        strReport.append("\n").append("Total Row Length:  ").append(tempFeetInches);
 
 
         strReport.append("\n\n");

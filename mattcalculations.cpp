@@ -288,11 +288,11 @@ QString createFeetInchesString(int nInputSixteenths, unsigned int nFormat, bool 
 
     strOutput.append(QString::number(nFeet));
     if(nFormat == WORDS)    {strOutput.append(" ").append("feet ");}
-    if(nFormat == MARKS)    {strOutput.append("' ");}
+    if(nFormat == MARKS)    {strOutput.append("' - ");}
 
     strOutput.append(QString::number(nInches)).append(" ").append(strFraction);
     if(nFormat == WORDS)    {strOutput.append(" ").append("inches ");}
-    if(nFormat == MARKS)    {strOutput.append('" ');}
+    if(nFormat == MARKS)    {strOutput.append("\" ");}
 
     return strOutput;
 }
