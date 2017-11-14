@@ -294,10 +294,10 @@ QString FloorSection::GenerateCutList()
     }
 
     strReport.append("Fail Statistics:").append("\n");
-    strReport.append("Min Length Fails: ").append(QString::number(sFailLog.nMinLengthFail )).append("\n");
-    strReport.append("Max Waste Fails: ").append(QString::number(sFailLog.nMaxWasteFail )).append("\n");
-    strReport.append("Proportional Fails: ").append(QString::number(sFailLog.nProportionFail )).append("\n");
-    strReport.append("Stairstep Fails: ").append(QString::number(sFailLog.nStairStepFail )).append("\n");
+    strReport.append("Min Length Fails: ").append( addCommasToDouble( sFailLog.nMinLengthFail,0)).append("\n");
+    strReport.append("Max Waste Fails: ").append(addCommasToDouble( sFailLog.nMaxWasteFail,0 )).append("\n");
+    strReport.append("Proportional Fails: ").append(addCommasToDouble( sFailLog.nProportionFail,0 )).append("\n");
+    strReport.append("Stairstep Fails: ").append(addCommasToDouble( sFailLog.nStairStepFail, 0 )).append("\n");
 
 
     return strReport;

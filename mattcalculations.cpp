@@ -9,21 +9,6 @@
 #include <QTime>
 #include <qglobal.h>
 
-double roundDoubleToPoints(double dInput, unsigned int nNumberOfDecimalPlaces )
-{
-    double dTemp = 0;
-
-    for(int iii = 1; iii <= nNumberOfDecimalPlaces; iii++)
-    {
-        dInput = dInput * 10;
-    }
-    dTemp = static_cast<int>(dInput + .5);
-    for(int iii = 1; iii <= nNumberOfDecimalPlaces; iii++)
-    {
-        dTemp = dTemp / 10;
-    }
-    return dTemp;
-}
 
 
 bool doubleIsEqual (double x, double y, unsigned int nNumberOfDecimalPlaces)
@@ -431,4 +416,101 @@ QString intToLetters(int nInputNum)
         strLetter.append(nTens+64);//64 is the ascii offset
     strLetter.append(nOnes+64);
     return strLetter;
+}
+
+
+double roundDoubleToPoints(double dInput, unsigned int nNumberOfDecimalPlaces )
+{
+    double dTemp = 0;
+
+    for(int iii = 1; iii <= nNumberOfDecimalPlaces; iii++)
+    {
+        dInput = dInput * 10;
+    }
+    if (dInput >= 0)
+        dTemp = static_cast<int>(dInput + .5);
+    else
+    {
+        dTemp = static_cast<int>(dInput - .5);
+    }
+
+    for(int iii = 1; iii <= nNumberOfDecimalPlaces; iii++)
+    {
+        dTemp = dTemp / 10;
+    }
+    return dTemp;
+}
+
+// largest num 2147483647
+QString addCommasToDouble(double dInput, unsigned int nNumberOfDecimalPlaces)
+{
+    dInput = roundDoubleToPoints(dInput, nNumberOfDecimalPlaces);
+    for(int iii = 1; iii <= nNumberOfDecimalPlaces; iii++)
+    {
+        dInput = dInput*10;
+    }
+    QString strTemp = QString::number(dInput,'g',10);
+    strTemp = addDecimalPoint(strTemp,nNumberOfDecimalPlaces);
+    strTemp = addCommasToString(strTemp);
+    return strTemp;
+}
+QString addCommasToString (QString strInput)
+{
+    QString strTemp = reverseQString(strInput);
+    int nLength = strTemp.length();
+    int nIndexOfDecimal = strTemp.indexOf('.');
+    int nCountOfPlaces = 0;
+    for(int iii = (nIndexOfDecimal+1);iii < nLength; iii++)
+    {
+        nCountOfPlaces++;
+        if(nCountOfPlaces == 4)
+        {
+            if(strTemp[iii] != '-' )
+                strTemp.insert(iii, ',');
+            nLength++;
+            nCountOfPlaces = 0;
+        }
+
+    }//end for loop
+    QString strOutput;
+    strOutput = reverseQString(strTemp);
+    return strOutput;
+}
+
+QString addDecimalPoint (QString strInput, unsigned int nNumberOfDecimalPlaces)
+{
+    if(nNumberOfDecimalPlaces > 0 && nNumberOfDecimalPlaces <= strInput.length())
+    {
+        QString strOutput = reverseQString(strInput);
+        strOutput.insert(nNumberOfDecimalPlaces, '.');
+        strOutput = reverseQString(strOutput);
+        return strOutput;
+    }
+    return strInput;
+}
+
+QString reverseQString(QString strInput)
+{
+    QString strOutput;
+    QString strTemp = strInput;
+    int nLength = strTemp.length();
+    int nCurrentLength = strTemp.length();
+    int nEndIndex = nCurrentLength - 1;
+    for(int iii = 0; iii < (nCurrentLength/2); iii++)
+    {
+        QString strCopy;
+        strCopy[0] = strTemp[iii];
+        strTemp[iii] = strTemp[nEndIndex];
+        strTemp[nEndIndex] = strCopy[0];
+        nEndIndex--;
+    }
+    strOutput = strTemp;
+    return strOutput;
+}
+void swapChar(QChar &cA, QChar &cB)
+{
+    QChar cTemp;
+    cTemp = cA;
+    cA = cB;
+    cB = cTemp;
 }

@@ -1,7 +1,7 @@
 #ifndef MATTCALCULATIONS
 #define MATTCALCULATIONS
 
-#define VERSION_OF_MATTCALCULATIONS "1.2.3" //10/23/2017
+#define VERSION_OF_MATTCALCULATIONS "1.2.4" //11/14/2017
 
 #include <qstring.h>
 #include <QDate>
@@ -50,11 +50,11 @@ double roundDoubleToPoints(double dInput, unsigned int nNumberOfDecimalPlaces );
 QString splitString(QString CSVLine);
 QString intToLetters(int nInputNum);
 
-//QString addCommasToDouble(double dInput, unsigned int nNumberOfDecimalPlaces);
-//QString addCommasToString (QString strInput);
-//QString addDecimalPoint (QString strInput, unsigned int nNumberOfDecimalPlaces);
-//QString reverseQString(QString strInput);
-//void swapChar(QChar &cA, QChar &cB);
+QString addCommasToDouble(double dInput, unsigned int nNumberOfDecimalPlaces);
+QString addCommasToString (QString strInput);
+QString addDecimalPoint (QString strInput, unsigned int nNumberOfDecimalPlaces);
+QString reverseQString(QString strInput);
+void swapChar(QChar &cA, QChar &cB);
 
 
 
